@@ -266,6 +266,13 @@ void Individual::SwapMutation(double mutationProbability)
 	m_building->AddCubesBasedOnCubesExistence(newCubesExistence);
 }
 
+Chromosome Individual::GetChromosome() const
+{
+	Chromosome chromo;
+	chromo.genes = m_building->GetCubesExistence();
+	return chromo;
+}
+
 bool Individual::operator==(const Individual& other) const
 {
 	for (int index = 0; index < m_building->GetCubesExistence().size(); ++index)

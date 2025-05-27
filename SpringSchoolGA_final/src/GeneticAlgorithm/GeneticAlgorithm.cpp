@@ -68,8 +68,15 @@ std::map<IIndividual*, double> GeneticAlgorithm::CalculateFitnessValues()
 	std::map<IIndividual*, double> fitnessValues;
 	for (const auto& individual : m_workingPopulation)
 	{
+		auto& genes = std::dynamic_pointer_cast<Individual>(individual)->GetChromosome();
+		if (m_calculatedFitnessValues.find(genes) != m_calculatedFitnessValues.end()) {
+			fitnessValues[individual.get()] = m_calculatedFitnessValues[genes];
+			std::cout << "Retrieved old individual fitness";
+			continue;
+		}
 		double value = individual->Evaluate();
 		fitnessValues[individual.get()] = value;
+		m_calculatedFitnessValues[genes] = value;
 	}
 
 	return fitnessValues;

@@ -3,8 +3,10 @@
 #include <functional>
 #include <iostream>
 #include <map>
+#include <unordered_map>
 
 #include <GeneticAlgorithm/IIndividual.h>
+#include <GeneticAlgorithm/Chromosome.h>
 
 #include <Services/RandomNumbersGenerator.h>
 #include <Services/IOIndividualManager.h>
@@ -56,6 +58,7 @@ private:
 private:
 	std::vector<std::shared_ptr<IIndividual>> m_population;
 	std::vector<std::shared_ptr<IIndividual>> m_workingPopulation;
+	std::unordered_map<Chromosome, double> m_calculatedFitnessValues;
 
 	std::function<IIndividual* ()> m_createIndividual;
 

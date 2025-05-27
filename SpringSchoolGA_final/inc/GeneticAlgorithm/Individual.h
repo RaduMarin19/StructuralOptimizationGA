@@ -7,6 +7,7 @@
 #include <fea/ChMesh.h>
 
 #include <GeneticAlgorithm/IIndividual.h>
+#include <GeneticAlgorithm/Chromosome.h>
 
 #include <GraphicalObjects/Building.h>
 
@@ -44,6 +45,8 @@ public:
 
 	void UniformCrossover(IIndividual& other) override;
 	void SwapMutation(double mutationProbability) override;
+
+	Chromosome GetChromosome() const;
 
 	bool operator==(const Individual& other) const;
 
