@@ -41,11 +41,11 @@ private:
 
 	double CalculateSumOfFitnessValues();
 	std::vector<double> CalculateProbabilityOfSelection();
-	//std::vector<double> CalculateProbabilityOfRankSelection();
+	std::vector<double> CalculateProbabilityOfRankSelection();
 	std::vector<double> CalcutateCumulativeProbabilityOfSelection();
 
 	void Selection();
-	//void TournamentSelection();
+	void TournamentSelection();
 
 	void Crossover();
 	void Mutation();
