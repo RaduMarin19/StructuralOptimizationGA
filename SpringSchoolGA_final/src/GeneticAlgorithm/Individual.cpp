@@ -71,22 +71,55 @@ const std::shared_ptr<Building> Individual::GetBuilding() const
 	return m_building;
 }
 
-double Individual::Evaluate()
+double Individual::SimulateAndGetMaximStressDirect()
 {
-	double maximStress = SimulateAndGetMaximStress();
-	double value = MINIM_INDIVIDUAL_VALUE;
+	ConfigureSystem configureSystem(m_building->GetSystem());
+	configureSystem.SetSystemTimestepper();
+	configureSystem.SetSystemSover();
+	configureSystem.Simulate(0.1);
 
-	if (maximStress >= m_maximStress || maximStress < EPSILON_STRESS)
+	double maximStress = 0.0;
+	auto elements = m_building->GetMesh()->GetElements();
+
+	for (const auto& element : elements)
 	{
-		return value;
+		auto castedElement = std::dynamic_pointer_cast<chrono::fea::ChElementHexaCorot_8>(element);
+		auto stress = castedElement->GetStress(0.5, 0.5, 0.5);
+
+		double stressOnOx, stressOnOy, stressOnOz;
+		stress.ComputePrincipalStresses(stressOnOx, stressOnOy, stressOnOz);
+
+		maximStress = std::max({ maximStress, fabs(stressOnOx), fabs(stressOnOy), fabs(stressOnOz) });
 	}
 
-	double stressHeadroom = m_maximStress - maximStress;
-
-	value = (pow((GetNumberOfRemovedElements() + 1), 2)) * stressHeadroom;
-
-	return value;
+	return maximStress;
 }
+
+
+double Individual::Evaluate()
+{
+	try {
+		double maximStress = SimulateAndGetMaximStress();
+		double value = MINIM_INDIVIDUAL_VALUE;
+
+		if (maximStress >= m_maximStress || maximStress < EPSILON_STRESS)
+			return value;
+
+		double stressHeadroom = m_maximStress - maximStress;
+		value = (pow((GetNumberOfRemovedElements() + 1), 2)) * stressHeadroom;
+
+		return value;
+	}
+	catch (const std::exception& e) {
+		std::cerr << "[EXCEPTION] during evaluation: " << e.what() << "\n";
+		return MINIM_INDIVIDUAL_VALUE;
+	}
+	catch (...) {
+		std::cerr << "[EXCEPTION] Unknown fatal error in Individual::Evaluate().\n";
+		return MINIM_INDIVIDUAL_VALUE;
+	}
+}
+
 
 void Individual::Crossover(IIndividual& other)
 {

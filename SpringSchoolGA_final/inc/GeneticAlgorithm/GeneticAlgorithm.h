@@ -32,20 +32,20 @@ public:
 
 	void Run();
 
-	IIndividual* GetWinnerIndividual();
+	Chromosome GetWinnerIndividual();
 
 private:
 	void InitializePopulation();
 
-	std::map<IIndividual*, double> CalculateFitnessValues();
+	std::unordered_map<Chromosome, double> CalculateFitnessValues();
 
 	double CalculateSumOfFitnessValues();
 	std::vector<double> CalculateProbabilityOfSelection();
-	std::vector<double> CalculateProbabilityOfRankSelection();
+	//std::vector<double> CalculateProbabilityOfRankSelection();
 	std::vector<double> CalcutateCumulativeProbabilityOfSelection();
 
 	void Selection();
-	void TournamentSelection();
+	//void TournamentSelection();
 
 	void Crossover();
 	void Mutation();
@@ -58,11 +58,15 @@ private:
 private:
 	std::vector<std::shared_ptr<IIndividual>> m_population;
 	std::vector<std::shared_ptr<IIndividual>> m_workingPopulation;
+	std::vector<Chromosome> m_chromPopulation;
+	std::vector<Chromosome> m_chromWorkingPopulation;
 	std::unordered_map<Chromosome, double> m_calculatedFitnessValues;
+	std::shared_ptr<IIndividual> m_individual;
 
 	std::function<IIndividual* ()> m_createIndividual;
 
-	std::map<IIndividual*, double> m_fitnessValues;
+	//std::map<IIndividual*, double> m_fitnessValues;
+	std::unordered_map<Chromosome, double> m_chromFitnessValues;
 
 	size_t m_populationSize;
 	size_t m_numberOfEpochs;

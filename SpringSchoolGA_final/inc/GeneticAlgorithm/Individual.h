@@ -35,6 +35,8 @@ public:
 
 	const std::shared_ptr<Building> GetBuilding() const;
 
+	double SimulateAndGetMaximStressDirect();
+
 	double Evaluate() override;
 
 	void Crossover(IIndividual& other) override;
