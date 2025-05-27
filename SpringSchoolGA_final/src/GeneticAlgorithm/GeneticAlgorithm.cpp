@@ -16,7 +16,7 @@ void GeneticAlgorithm::Run()
 {
 	InitializePopulation();
 
-	for (int index = 0; index < m_numberOfEpochs; ++index)
+	for (int index = 0; index < 3; ++index)
 	{
 		std::cout << std::endl << "Epoch: " << index + 1 << std::endl;
 
@@ -65,15 +65,18 @@ void GeneticAlgorithm::InitializePopulation()
 
 std::map<IIndividual*, double> GeneticAlgorithm::CalculateFitnessValues()
 {
+	static int times = 0;
 	std::map<IIndividual*, double> fitnessValues;
 	for (const auto& individual : m_workingPopulation)
 	{
 		auto& genes = std::dynamic_pointer_cast<Individual>(individual)->GetChromosome();
 		if (m_calculatedFitnessValues.find(genes) != m_calculatedFitnessValues.end()) {
 			fitnessValues[individual.get()] = m_calculatedFitnessValues[genes];
-			std::cout << "Retrieved old individual fitness";
+			times++;
+			std::cout << "Retrieved old individual fitness("<<times<<")"<< std::endl;
 			continue;
 		}
+		std::cout << "Calculated fitness\n";
 		double value = individual->Evaluate();
 		fitnessValues[individual.get()] = value;
 		m_calculatedFitnessValues[genes] = value;
