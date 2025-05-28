@@ -24,8 +24,8 @@ void GeneticAlgorithm::Run()
 
 		std::cout << "Calculated Fitness Values\n";
 
-		/*if (SELECTION_TYPE == "roulette_wheel")*/ Selection();
-		//else TournamentSelection();
+		if (SELECTION_TYPE == "roulette_wheel") Selection();
+		else TournamentSelection();
 		std::cout << "Selection done! - " << SELECTION_TYPE << "\n";
 		Crossover();
 		std::cout << "Crossover done! - " << CROSSOVER_TYPE << "\n";
@@ -142,44 +142,44 @@ std::vector<double> GeneticAlgorithm::CalculateProbabilityOfSelection()
 	return probabilityOfSelectionVector;
 }
 
-//std::vector<double> GeneticAlgorithm::CalculateProbabilityOfRankSelection()
-//{
-//	std::vector<std::shared_ptr<IIndividual>> newPopulation;
-//	std::vector<std::pair < IIndividual*, double >> rankProbabilities{ m_chromFitnessValues.begin(), m_chromFitnessValues.end() };
-//	std::vector<double> probabilities;
-//
-//	size_t ranksLength = rankProbabilities.size();
-//	probabilities.reserve(ranksLength);
-//
-//	std::sort(rankProbabilities.begin(), rankProbabilities.end(), [](const auto& lhs, const auto& rhs) {
-//		return lhs.second > rhs.second;
-//		});
-//
-//	int sumOfRanks = ranksLength * (ranksLength + 1) / 2;
-//
-//	for (int index = 0; index < ranksLength; ++index)
-//	{
-//		rankProbabilities[index].second = index + 1;
-//	}
-//
-//	for (auto& pair : rankProbabilities)
-//	{
-//		pair.second /= sumOfRanks;
-//	}
-//
-//	std::transform(rankProbabilities.begin(), rankProbabilities.end(), std::back_inserter(probabilities),
-//		[](const std::pair<IIndividual*, double> p) { return p.second; });
-//
-//	return probabilities;
-//}
+std::vector<double> GeneticAlgorithm::CalculateProbabilityOfRankSelection()
+{
+	std::vector<Chromosome> newPopulation;
+	std::vector<std::pair<Chromosome, double>> rankProbabilities{ m_chromFitnessValues.begin(), m_chromFitnessValues.end() };
+	std::vector<double> probabilities;
+
+	size_t ranksLength = rankProbabilities.size();
+	probabilities.reserve(ranksLength);
+
+	std::sort(rankProbabilities.begin(), rankProbabilities.end(), [](const auto& lhs, const auto& rhs) {
+		return lhs.second > rhs.second;
+		});
+
+	int sumOfRanks = ranksLength * (ranksLength + 1) / 2;
+
+	for (int index = 0; index < ranksLength; ++index)
+	{
+		rankProbabilities[index].second = index + 1;
+	}
+
+	for (auto& pair : rankProbabilities)
+	{
+		pair.second /= sumOfRanks;
+	}
+
+	std::transform(rankProbabilities.begin(), rankProbabilities.end(), std::back_inserter(probabilities),
+		[](const std::pair<Chromosome, double> p) { return p.second; });
+
+	return probabilities;
+}
 
 std::vector<double> GeneticAlgorithm::CalcutateCumulativeProbabilityOfSelection()
 {
 	std::vector<double> cumulativeProbabilityOfSelectionVector;
 	std::vector<double> probabilityOfSelectionVector;
 
-	/*if (SELECTION_TYPE == "roulette_wheel")*/ probabilityOfSelectionVector = CalculateProbabilityOfSelection();
-	//else probabilityOfSelectionVector = CalculateProbabilityOfRankSelection();
+	if (SELECTION_TYPE == "roulette_wheel") probabilityOfSelectionVector = CalculateProbabilityOfSelection();
+	else probabilityOfSelectionVector = CalculateProbabilityOfRankSelection();
 
 	for (int currentIndividualIndex = 0; currentIndividualIndex < m_populationSize; ++currentIndividualIndex)
 	{
@@ -226,47 +226,46 @@ void GeneticAlgorithm::Selection()
 	m_chromWorkingPopulation = newPopulation;
 }
 
+void GeneticAlgorithm::TournamentSelection()
+{
+	std::vector<Chromosome> newPopulation{};
+	size_t populationSize = m_chromWorkingPopulation.size();
+	size_t tournamentSize = populationSize / 10;
 
-//void GeneticAlgorithm::TournamentSelection()
-//{
-//	std::vector<std::shared_ptr<IIndividual>> newPopulation{};
-//	size_t populationSize = m_workingPopulation.size();
-//	size_t tournamentSize = populationSize / 10;
-//
-//	for (int index = 0; index < populationSize; ++index)
-//	{
-//		std::vector<double> randomNumbers = RandomNumbersGenerator::GenerateRealNumbers(0, populationSize, tournamentSize);
-//		std::vector<int> tournamentIndices(tournamentSize);
-//
-//		std::transform(randomNumbers.begin(), randomNumbers.end(), tournamentIndices.begin(),
-//			[](double d) { return static_cast<int>(d); });
-//
-//		std::vector<std::pair<std::shared_ptr<IIndividual>, double>> tournamentPopulation{};
-//
-//		for (auto index : tournamentIndices)
-//		{
-//			Chromosome individual = m_chromWorkingPopulation[index];
-//			double fitnessValue = m_chromFitnessValues[individual];
-//			tournamentPopulation.push_back({ individual, fitnessValue });
-//		}
-//
-//		double bestFitnessValue = tournamentPopulation[0].second;
-//		int bestIndex = 0;
-//
-//		for (int index = 0; index < tournamentSize; ++index)
-//		{
-//			if (tournamentPopulation[index].second > bestFitnessValue)
-//			{
-//				bestFitnessValue = tournamentPopulation[index].second;
-//				bestIndex = index;
-//			}
-//		}
-//
-//		newPopulation.push_back(tournamentPopulation[bestIndex].first);
-//	}
-//
-//	m_workingPopulation = newPopulation;
-//}
+	for (int index = 0; index < populationSize; ++index)
+	{
+		std::vector<double> randomNumbers = RandomNumbersGenerator::GenerateRealNumbers(0, populationSize, tournamentSize);
+		std::vector<int> tournamentIndices(tournamentSize);
+
+		std::transform(randomNumbers.begin(), randomNumbers.end(), tournamentIndices.begin(),
+			[](double d) { return static_cast<int>(d); });
+
+		std::vector<std::pair<Chromosome, double>> tournamentPopulation{};
+
+		for (auto index : tournamentIndices)
+		{
+			Chromosome individual = m_chromWorkingPopulation[index];
+			double fitnessValue = m_chromFitnessValues[individual];
+			tournamentPopulation.push_back({ individual, fitnessValue });
+		}
+
+		double bestFitnessValue = tournamentPopulation[0].second;
+		int bestIndex = 0;
+
+		for (int index = 0; index < tournamentSize; ++index)
+		{
+			if (tournamentPopulation[index].second > bestFitnessValue)
+			{
+				bestFitnessValue = tournamentPopulation[index].second;
+				bestIndex = index;
+			}
+		}
+
+		newPopulation.push_back(tournamentPopulation[bestIndex].first);
+	}
+
+	m_chromWorkingPopulation = newPopulation;
+}
 
 void GeneticAlgorithm::Crossover()
 {
